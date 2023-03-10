@@ -1,0 +1,51 @@
+version: '3.9'
+services:
+  app:
+    build: 
+      context: ./
+      target: dev
+    volumes:
+      - .:/var/www/html
+      - .env:/var/www/html/.env
+    ports:
+      - "8082:80"
+    environment:
+      - APP_ENV=testing
+      - APP_DEBUG=true
+    networks:
+      - utiliva
+    depends_on:
+      - mysql
+  node:
+    image: node:18-alpine
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "3331:3000"
+    working_dir: /var/www/html
+    entrypoint: [ 'node' ]
+    tty: true
+    networks:
+      - utiliva 
+  mysql:
+    image: 'mysql/mysql-server:8.0'
+    environment:
+        MYSQL_ROOT_HOST: "%"
+        MYSQL_ROOT_PASSWORD: "root"
+        MYSQL_USER: "laravel"  
+        MYSQL_PASSWORD: "root"
+        MYSQL_DATABASE: "utiliva"
+        MYSQL_ALLOW_EMPTY_PASSWORD: 1      
+    ports:
+        - 3906:3306    
+    volumes:
+      -  'mysql8:/var/lib/mysql'   
+    networks:
+        - utiliva  
+networks:
+    utiliva:
+        driver: bridge
+volumes:
+    mysql8:
+        driver: local
+       
